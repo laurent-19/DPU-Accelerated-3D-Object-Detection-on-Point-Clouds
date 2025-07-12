@@ -2,7 +2,12 @@
     "lib": "libvart-dpu-runner.so",
     "filename": "CNN_zcu102.xmodel",
     "kernel": [
-        "subgraph_PoseResNet__PoseResNet_Conv2d_conv1__input_2"
+        "subgraph_PoseResNet__PoseResNet_1047",
+        "subgraph_PoseResNet__PoseResNet_622",
+        "subgraph_PoseResNet__PoseResNet_759",
+        "subgraph_PoseResNet__PoseResNet_855",
+        "subgraph_PoseResNet__PoseResNet_1143",
+        "subgraph_PoseResNet__PoseResNet_1010"
     ],
     "target": "DPUCZDX8G_ISA0_B4096_MAX_BG2"
 }
