@@ -1,0 +1,22 @@
+Power Utilization
+SOM total power    :     5210 mW
+SOM total current  :     1031 mA
+SOM total voltage  :     5045 mV
+
+AMS CTRL
+System PLLs voltage measurement, VCC_PSLL   		:     1198 mV
+PL internal voltage measurement, VCC_PSBATT 		:     718 mV
+Voltage measurement for six DDR I/O PLLs, VCC_PSDDR_PLL :     1800 mV
+VCC_PSINTFP_DDR voltage measurement         		:     843 mV
+
+PS Sysmon
+LPD temperature measurement 		    		:     33 C
+FPD temperature measurement (REMOTE)  		    	:     31 C
+VCC PS FPD voltage measurement (supply 2)   		:     842 mV
+PS IO Bank 500 voltage measurement (supply 6)		:     1792 mV
+VCC PS GTR voltage   					:     857 mV
+VTT PS GTR voltage    					:     1802 mV
+
+PL Sysmon
+PL temperature    					:     32 C
+

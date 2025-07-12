@@ -118,6 +118,8 @@ if __name__ == '__main__':
     
     overlay = DpuOverlay("dpu.bit")
     overlay.load_model("./CNN_zcu102.xmodel")
+    #overlay.load_model("./10ep_resnet_CNN_zcu102.xmodel")
+
     dpu = overlay.runner
     
     inputTensors = dpu.get_input_tensors()
@@ -167,7 +169,7 @@ if __name__ == '__main__':
             img_bgr = show_rgb_image_with_boxes(img_bgr, kitti_dets, calib)
 
         out_img = merge_rgb_to_bev(img_bgr, bev_map, output_width=configs.output_width)
-        write_credit(out_img, (80, 210), text_author='3D Object Detection on KV260', org_fps=(80, 250), fps=fps)
+        write_credit(out_img, (80, 210), text_author='Kria KV260', org_fps=(80, 250), fps=fps)
         if out_cap is None:
             out_cap_h, out_cap_w = out_img.shape[:2]
             fourcc = cv2.VideoWriter_fourcc(*'MJPG')

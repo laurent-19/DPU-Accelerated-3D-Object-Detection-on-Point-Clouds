@@ -1,0 +1,47 @@
+CPU Utilization
+CPU0	:     6.841573%
+CPU1	:     38.100000%
+CPU2	:     16.766667%
+CPU3	:     61.100000%
+
+RAM Utilization
+MemTotal      :     4025304 kB
+MemFree	      :     436444 kB
+MemAvailable  :     1593664 kB
+
+Swap Mem Utilization
+SwapTotal    :    0 kB
+SwapFree     :    0 kB
+
+Power Utilization
+SOM total power    :     4750 mW
+SOM total current  :     941 mA
+SOM total voltage  :     5045 mV
+
+AMS CTRL
+System PLLs voltage measurement, VCC_PSLL   		:     1192 mV
+PL internal voltage measurement, VCC_PSBATT 		:     719 mV
+Voltage measurement for six DDR I/O PLLs, VCC_PSDDR_PLL :     1801 mV
+VCC_PSINTFP_DDR voltage measurement         		:     848 mV
+
+PS Sysmon
+LPD temperature measurement 		    		:     31 C
+FPD temperature measurement (REMOTE)  		    	:     33 C
+VCC PS FPD voltage measurement (supply 2)   		:     847 mV
+PS IO Bank 500 voltage measurement (supply 6)		:     1791 mV
+VCC PS GTR voltage   					:     856 mV
+VTT PS GTR voltage    					:     1800 mV
+
+PL Sysmon
+PL temperature    					:     30 C
+
+CMA Mem Utilization
+CmaTotal   :     1024000 kB
+CmaFree    :     357916 kB
+
+CPU Frequency
+CPU0	:    1333.333008 MHz
+CPU1	:    1333.333008 MHz
+CPU2	:    1333.333008 MHz
+CPU3	:    1333.333008 MHz
+

@@ -1,3 +1,14 @@
+"""
+# -*- coding: utf-8 -*-
+-----------------------------------------------------------------------------------
+# Modified by: laurent-19, Popa Ioan Laurenitiu
+# Author: Nguyen Mau Dung
+-----------------------------------------------------------------------------------
+# Description: 
+# Demonstration script for live video rendering of
+# front and back views using DPU acceleration
+"""
+
 import sys
 import os
 import warnings
@@ -103,9 +114,7 @@ if __name__ == '__main__':
     
     
     overlay = DpuOverlay("dpu.bit")
-    overlay.load_model("./CNN_zcu102.xmodel")
-    #overlay.load_model("./10ep_resnet_CNN_zcu102.xmodel")
-
+    overlay.load_model("./10ep_resnet_CNN_zcu102.xmodel")
     dpu = overlay.runner
     
     inputTensors = dpu.get_input_tensors()
@@ -171,6 +180,11 @@ if __name__ == '__main__':
 
         out_img = np.concatenate((img_bgr, full_bev), axis=0)
         write_credit(out_img, (50, 410), text_author='Kria KV260', org_fps=(900, 410), fps=fps)
+        
+        cv2.imshow("Detections",out_img)
+        key = cv2.waitKey(1)
+        if key == ord('q'):
+            break
 
         if out_cap is None:
             out_cap_h, out_cap_w = out_img.shape[:2]
@@ -183,3 +197,5 @@ if __name__ == '__main__':
 
     if out_cap:
         out_cap.release()
+    
+    cv2.destroyAllWindows()
