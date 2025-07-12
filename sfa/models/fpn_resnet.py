@@ -176,17 +176,16 @@ class PoseResNet(nn.Module):
         out_layer4 = self.layer4(out_layer3)
 
         # up_level1: torch.Size([b, 512, 14, 14])
-        up_level1 = F.interpolate(out_layer4, scale_factor=2, mode='bilinear', align_corners=True)
+        up_level1 = F.interpolate(out_layer4, scale_factor=2, mode='bilinear', align_corners=False)
 
         concat_level1 = torch.cat((up_level1, out_layer3), dim=1)
         # up_level2: torch.Size([b, 256, 28, 28])
-        up_level2 = F.interpolate(self.conv_up_level1(concat_level1), scale_factor=2, mode='bilinear',
-                                  align_corners=True)
+        up_level2 = F.interpolate(self.conv_up_level1(concat_level1), scale_factor=2, mode='bilinear', align_corners=False)
+
 
         concat_level2 = torch.cat((up_level2, out_layer2), dim=1)
         # up_level3: torch.Size([b, 128, 56, 56]),
-        up_level3 = F.interpolate(self.conv_up_level2(concat_level2), scale_factor=2, mode='bilinear',
-                                  align_corners=True)
+        up_level3 = F.interpolate(self.conv_up_level2(concat_level2), scale_factor=2, mode='bilinear', align_corners=False)
         # up_level4: torch.Size([b, 64, 56, 56])
         up_level4 = self.conv_up_level3(torch.cat((up_level3, out_layer1), dim=1))
 
@@ -195,10 +194,9 @@ class PoseResNet(nn.Module):
             temp_outs = []
             for fpn_idx, fdn_input in enumerate([up_level2, up_level3, up_level4]):
                 fpn_out = self.__getattr__('fpn{}_{}'.format(fpn_idx, head))(fdn_input)
-                _, _, fpn_out_h, fpn_out_w = fpn_out.size()
-                # Make sure the added features having same size of heatmap output
-                if (fpn_out_w != hm_w) or (fpn_out_h != hm_h):
-                    fpn_out = F.interpolate(fpn_out, size=(hm_h, hm_w))
+                # Always interpolate to ensure consistent sizing for quantization
+                # This removes the dynamic conditional that causes tracing warnings
+                fpn_out = F.interpolate(fpn_out, size=(hm_h, hm_w), mode='bilinear', align_corners=False)
                 temp_outs.append(fpn_out)
             # Take the softmax in the keypoint feature pyramid network
             final_out = self.apply_kfpn(temp_outs)
@@ -208,9 +206,27 @@ class PoseResNet(nn.Module):
         return ret
 
     def apply_kfpn(self, outs):
-        outs = torch.cat([out.unsqueeze(-1) for out in outs], dim=-1)
-        softmax_outs = F.softmax(outs, dim=-1)
-        ret_outs = (outs * softmax_outs).sum(dim=-1)
+        # Use concatenation and reshape instead of stack/unsqueeze to be compatible with Vitis AI
+        # Get dimensions from first output
+        batch_size, channels, height, width = outs[0].shape
+        num_fpn_levels = len(outs)
+        
+        # Concatenate along the channel dimension instead of creating a new dimension
+        # This avoids using unsqueeze or stack operations
+        concat_outs = torch.cat(outs, dim=1)  # Shape: [B, C*num_levels, H, W]
+        
+        # Reshape to separate the FPN levels: [B, C, num_levels, H, W]
+        reshaped_outs = concat_outs.view(batch_size, channels, num_fpn_levels, height, width)
+        
+        # Move the FPN level dimension to the end: [B, C, H, W, num_levels]
+        transposed_outs = reshaped_outs.permute(0, 1, 3, 4, 2)
+        
+        # Apply softmax along the FPN level dimension
+        softmax_outs = F.softmax(transposed_outs, dim=-1)
+        
+        # Weighted sum along the FPN level dimension
+        ret_outs = (transposed_outs * softmax_outs).sum(dim=-1)
+        
         return ret_outs
 
     def init_weights(self, num_layers, pretrained=True):

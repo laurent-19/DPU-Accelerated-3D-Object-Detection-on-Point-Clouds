@@ -84,12 +84,12 @@ DIVIDER = '-----------------------------------------'
 
 def parse_test_configs():
     parser = argparse.ArgumentParser(description='Testing config for the Implementation')
-    parser.add_argument('--saved_fn', type=str, default='resnet_18', metavar='FN',
+    parser.add_argument('--saved_fn', type=str, default='fpn_resnet_18', metavar='FN',
                         help='The name using for saving logs, models,...')
-    parser.add_argument('-a', '--arch', type=str, default='resnet_18', metavar='ARCH',
+    parser.add_argument('-a', '--arch', type=str, default='fpn_resnet_18', metavar='ARCH',
                         help='The name of the model architecture')
     parser.add_argument('--pretrained_path', type=str,
-                        default='./Model_resnet_18_epoch_10.pth', metavar='PATH',
+                        default='./fpn_resnet_18_epoch_300.pth', metavar='PATH',
                         help='the path of the pretrained checkpoint')
     parser.add_argument('--K', type=int, default=50,
                         help='the number of top K') 
@@ -173,20 +173,23 @@ def test(model,device,configs):
             
             outputs = model(input_bev_maps)
             
-            #print(outputs)
-            #print(outputs[0].shape)
-            #tmp = torch.tensor(outputs[0])
-
-            #tmp = _sigmoid(outputs)
-            #outputs[0] = tmp[0] #_sigmoid(torch.stack(outputs[0]))
-            
-            #_sigmoid(torch.Tensor(outputs[0]))
-            #outputs[1] = tmp[1] #_sigmoid(outputs[1])
+            # Convert dictionary outputs to list format expected by decode function
+            # The order should match: hm_cen, cen_offset, direction, z_coor, dim
+            if isinstance(outputs, dict):
+                output_list = [
+                    outputs['hm_cen'],
+                    outputs['cen_offset'], 
+                    outputs['direction'],
+                    outputs['z_coor'],
+                    outputs['dim']
+                ]
+            else:
+                # If outputs is already a list/tuple (for compatibility)
+                output_list = outputs
             
             # detections size (batch_size, K, 10)
-
-            detections = decode(outputs[0], outputs[1], outputs[2], outputs[3],
-                                outputs[4], K=configs.K)
+            detections = decode(output_list[0], output_list[1], output_list[2], output_list[3],
+                                output_list[4], K=configs.K)
             detections = detections.cpu().numpy().astype(np.float32)
             detections = post_processing(detections, configs.num_classes, configs.down_ratio, configs.peak_thresh)
             t2 = time_synchronized()
